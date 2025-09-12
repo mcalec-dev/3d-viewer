@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="css/styles.css" />
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body class="select-none overflow-hidden bg-slate-600">
+    <div id="sliders" class="fixed left-4 top-4 z-10 text-white">
+      <div class="slider-container">
+        <label class="mb-2 block text-sm font-medium">
+          X (width):
+          <span id="widthValue">100</span>
+          px
+        </label>
+        <input
+          type="range"
+          id="cardWidth"
+          class="w-18"
+          min="10"
+          max="1000"
+          value="100"
+        />
+      </div>
+      <div class="slider-container">
+        <label class="mb-2 block text-sm font-medium">
+          Y (height):
+          <span id="heightValue">100</span>
+          px
+        </label>
+        <input
+          type="range"
+          id="cardHeight"
+          class="w-18"
+          min="10"
+          max="1000"
+          value="100"
+        />
+      </div>
+      <div class="slider-container">
+        <label class="mb-2 block text-sm font-medium">
+          Z (depth):
+          <span id="depthValue">100</span>
+          px
+        </label>
+        <input
+          type="range"
+          id="cardDepth"
+          class="w-18"
+          min="10"
+          max="1000"
+          value="100"
+        />
+      </div>
+      <div class="slider-container">
+        <label class="mb-2 block text-sm font-medium">
+          Smoothness:
+          <span id="smoothnessValue">0.12</span>
+        </label>
+        <input
+          type="range"
+          id="smoothness"
+          class="w-18"
+          min="0.01"
+          max="1"
+          step="0.001"
+          value="0.12"
+        />
+      </div>
+      <div class="slider-container">
+        <label class="mb-2 block text-sm font-medium">
+          Zoom:
+          <span id="zoomValue">1</span>
+        </label>
+        <input
+          type="range"
+          id="zoom"
+          class="w-18"
+          min="0.5"
+          max="8"
+          step="0.5"
+          value="1"
+        />
+      </div>
+    </div>
+    <div class="flex min-h-screen min-w-screen items-center justify-center">
+      <div class="card-container relative" style="perspective: 1200px">
+        <div class="steam-card card-3d cursor-grab active:cursor-grabbing">
+          <div class="face front bg-blue-500"></div>
+          <div class="face back bg-yellow-500"></div>
+          <div class="face top bg-blue-300"></div>
+          <div class="face left bg-green-500"></div>
+          <div class="face right bg-red-500"></div>
+          <div class="face bottom bg-blue-700"></div>
+        </div>
+      </div>
+      <div
+        class="bottom-grid absolute bottom-0 left-0 h-full w-full bg-gray-700"
+      ></div>
+    </div>
+    <script async src="js/renderer.js"></script>
+  </body>
+</html>

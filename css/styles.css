@@ -1,0 +1,70 @@
+.card-3d {
+  position: relative;
+  transform-style: preserve-3d;
+  width: 18rem;   /* Cube side */
+  height: 18rem;  /* Must match width */
+}
+
+.face {
+  height: 100px;
+  width: 100px;
+  position: absolute;
+  border: 1px solid #000;
+}
+
+/* Half the cube size in Z for correct positioning */
+.face.front {
+  transform: translateZ(9rem);
+}
+.face.back {
+  transform: rotateY(180deg) translateZ(9rem);
+}
+.face.right {
+  transform: rotateY(90deg) translateZ(9rem);
+}
+.face.left {
+  transform: rotateY(-90deg) translateZ(9rem);
+}
+.face.top {
+  transform: rotateX(90deg) translateZ(9rem);
+}
+.face.bottom {
+  transform: rotateX(-90deg) translateZ(9rem);
+}
+
+
+.bottom-grid {
+  position: absolute;
+  height: 100px;
+  width: 100%;
+  bottom: 0;
+  left: 0;
+  transform: rotateX(-90deg);
+  transform-origin: bottom;
+}
+.slider-container {
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(10px);
+  border-radius: 0.5rem;
+  padding: 1rem;
+  margin: 0.5rem;
+}
+.slider {
+  width: 200px;
+}
+.slider::-webkit-slider-thumb {
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #3b82f6;
+  cursor: pointer;
+}
+.slider::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #3b82f6;
+  cursor: pointer;
+  border: none;
+}
