@@ -1,18 +1,15 @@
-.card-3d {
+.cube {
   position: relative;
   transform-style: preserve-3d;
-  width: 18rem;   /* Cube side */
-  height: 18rem;  /* Must match width */
+  width: 18rem;
+  height: 18rem; 
 }
-
 .face {
   height: 100px;
   width: 100px;
   position: absolute;
   border: 1px solid #000;
 }
-
-/* Half the cube size in Z for correct positioning */
 .face.front {
   transform: translateZ(9rem);
 }
@@ -31,8 +28,6 @@
 .face.bottom {
   transform: rotateX(-90deg) translateZ(9rem);
 }
-
-
 .bottom-grid {
   position: absolute;
   height: 100px;

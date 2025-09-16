@@ -15,7 +15,7 @@
         </label>
         <input
           type="range"
-          id="cardWidth"
+          id="cubeWidth"
           class="w-18"
           min="10"
           max="1000"
@@ -30,7 +30,7 @@
         </label>
         <input
           type="range"
-          id="cardHeight"
+          id="cubeHeight"
           class="w-18"
           min="10"
           max="1000"
@@ -45,7 +45,7 @@
         </label>
         <input
           type="range"
-          id="cardDepth"
+          id="cubeDepth"
           class="w-18"
           min="10"
           max="1000"
@@ -54,8 +54,8 @@
       </div>
       <div class="slider-container">
         <label class="mb-2 block text-sm font-medium">
-          Smoothness:
-          <span id="smoothnessValue">0.12</span>
+          Camera Smoothness:
+          <span id="smoothnessValue">0.33</span>
         </label>
         <input
           type="range"
@@ -64,28 +64,73 @@
           min="0.01"
           max="1"
           step="0.001"
-          value="0.12"
+          value="0.33"
         />
       </div>
       <div class="slider-container">
         <label class="mb-2 block text-sm font-medium">
-          Zoom:
-          <span id="zoomValue">1</span>
+          Camera Zoom:
+          <span id="zoomValue">1.00</span>
         </label>
         <input
           type="range"
           id="zoom"
           class="w-18"
-          min="0.5"
-          max="8"
-          step="0.5"
+          min="1"
+          max="10"
+          step="0.10"
           value="1"
+        />
+      </div>
+      <div class="slider-container">
+        <label class="mb-2 block text-sm font-medium">
+          Scale:
+          <span id="scaleValue">1</span>
+        </label>
+        <input
+          type="range"
+          id="scale"
+          class="w-18"
+          min="1"
+          max="10"
+          step="1"
+          value="1"
+        />
+      </div>
+      <div class="slider-container">
+        <label class="mb-2 block text-sm font-medium">
+          Mouse Sensitivity:
+          <span id="sensitivityValue">100%</span>
+        </label>
+        <input
+          type="range"
+          id="sensitivity"
+          class="w-18"
+          min="1"
+          max="200"
+          step="1"
+          value="100"
+        />
+      </div>
+      <div class="slider-container">
+        <label class="mb-2 block text-sm font-medium">
+          FOV (Perspective):
+          <span id="perspectiveValue">1200px</span>
+        </label>
+        <input
+          type="range"
+          id="perspective"
+          class="w-18"
+          min="300"
+          max="4800"
+          step="100"
+          value="1200"
         />
       </div>
     </div>
     <div class="flex min-h-screen min-w-screen items-center justify-center">
-      <div class="card-container relative" style="perspective: 1200px">
-        <div class="steam-card card-3d cursor-grab active:cursor-grabbing">
+      <div class="cube-container relative">
+        <div class="cube cursor-grab active:cursor-grabbing">
           <div class="face front bg-blue-500"></div>
           <div class="face back bg-yellow-500"></div>
           <div class="face top bg-blue-300"></div>
