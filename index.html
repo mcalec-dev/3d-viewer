@@ -2,10 +2,48 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="stylesheet" href="css/styles.css" />
     <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="js/renderer.js"></script>
+    <script defer src="js/sliders.js"></script>
+    <script defer src="js/info.js"></script>
+    <script defer src="js/chooser.js"></script>
   </head>
   <body class="select-none overflow-hidden bg-slate-600">
+    <div id="info" class="fixed top-4 right-4 z-10 text-white w-32">
+      <div id="currentYaw">
+        Yaw: <span id="yawValue">0</span>°
+      </div>
+      <div id="currentPitch">
+        Pitch: <span id="pitchValue">0</span>°
+      </div>
+      <div id="currentFPS">
+        FPS: <span id="fpsValue">0</span>
+      </div>
+    </div>
+    <div id="chooser" class="fixed bottom-4 right-4 z-10 text-white">
+      <div class="mb-2 flex items-center">
+        <!-- future shape chooser -->
+        <label for="shapeChooser" class="mr-2">Shape:</label>
+        <select id="shapeChooser" class="rounded bg-slate-700 p-1 text-white">
+          <option value="cube">Cube</option>
+          <option value="pyramid">Pyramid</option>
+          <option value="sphere">Sphere</option>
+        </select>
+      </div>
+      <div class="flex items-center">
+        <!-- future texture chooser -->
+        <label for="textureSelect" class="mr-2">Texture:</label>
+        <select id="textureSelect" class="rounded bg-slate-700 p-1 text-white">
+          <option value="solid">Solid Colors</option>
+          <option value="grid">Grid</option>
+          <option value="checkerboard">Checkerboard</option>
+          <option value="wood">Wood</option>
+          <option value="marble">Marble</option>
+        </select>
+      </div>
+    </div>
     <div id="sliders" class="fixed left-4 top-4 z-10 text-white">
       <div class="slider-container">
         <label class="mb-2 block text-sm font-medium">
@@ -128,7 +166,7 @@
         />
       </div>
     </div>
-    <div class="flex min-h-screen min-w-screen items-center justify-center">
+    <div id="render" class="flex min-h-screen min-w-screen items-center justify-center">
       <div class="cube-container relative">
         <div class="cube cursor-grab active:cursor-grabbing">
           <div class="face front bg-blue-500"></div>
@@ -139,10 +177,6 @@
           <div class="face bottom bg-blue-700"></div>
         </div>
       </div>
-      <div
-        class="bottom-grid absolute bottom-0 left-0 h-full w-full bg-gray-700"
-      ></div>
     </div>
-    <script async src="js/renderer.js"></script>
   </body>
 </html>

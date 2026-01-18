@@ -1,0 +1,47 @@
+{
+  "styles": "relative",
+  "perspective": 1200,
+  "shape": {
+    "type": "cube",
+    "cursor": "grab",
+    "styles": "",
+    "faces": [
+      {
+        "color": "bg-blue-500",
+        "image": "images/front.png",
+        "pos": [0, 0, 1],
+        "axis": [0, 1, 0]
+      },
+      {
+        "color": "bg-yellow-500",
+        "image": "images/back.png",
+        "pos": [0, 0, -1],
+        "axis": [0, 1, 0]
+      },
+      {
+        "color": "bg-blue-500",
+        "image": "images/left.png",
+        "pos": [-1, 0, 0],
+        "axis": [0, 1, 0]
+      },
+      {
+        "color": "bg-green-500",
+        "image": "images/right.png",
+        "pos": [1, 0, 0],
+        "axis": [0, 1, 0]
+      },
+      {
+        "color": "bg-red-500",
+        "image": "images/top.png",
+        "pos": [0, 1, 0],
+        "axis": [1, 0, 0]
+      },
+      {
+        "color": "bg-blue-700",
+        "image": "images/bottom.png",
+        "pos": [0, -1, 0],
+        "axis": [1, 0, 0]
+      }
+    ]
+  }
+}
