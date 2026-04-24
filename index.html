@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="stylesheet" href="css/styles.css" />
     <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="js/state.js"></script>
+    <script defer src="js/settings.js"></script>
     <script defer src="js/renderer.js"></script>
     <script defer src="js/sliders.js"></script>
     <script defer src="js/info.js"></script>
@@ -12,6 +14,7 @@
   </head>
   <body class="select-none overflow-hidden bg-slate-600">
     <div id="info" class="fixed top-4 right-4 z-10 text-white w-32">
+      <p>Debug Info</p>
       <div id="currentYaw">
         Yaw: <span id="yawValue">0</span>°
       </div>
@@ -36,11 +39,7 @@
         <!-- future texture chooser -->
         <label for="textureSelect" class="mr-2">Texture:</label>
         <select id="textureSelect" class="rounded bg-slate-700 p-1 text-white">
-          <option value="solid">Solid Colors</option>
-          <option value="grid">Grid</option>
-          <option value="checkerboard">Checkerboard</option>
-          <option value="wood">Wood</option>
-          <option value="marble">Marble</option>
+          <option value="">Loading textures...</option>
         </select>
       </div>
     </div>
@@ -48,7 +47,7 @@
       <div class="slider-container">
         <label class="mb-2 block text-sm font-medium">
           X (width):
-          <span id="widthValue">100</span>
+          <span id="widthValue">0</span>
           px
         </label>
         <input
@@ -63,7 +62,7 @@
       <div class="slider-container">
         <label class="mb-2 block text-sm font-medium">
           Y (height):
-          <span id="heightValue">100</span>
+          <span id="heightValue">0</span>
           px
         </label>
         <input
@@ -78,7 +77,7 @@
       <div class="slider-container">
         <label class="mb-2 block text-sm font-medium">
           Z (depth):
-          <span id="depthValue">100</span>
+          <span id="depthValue">0</span>
           px
         </label>
         <input
@@ -93,7 +92,7 @@
       <div class="slider-container">
         <label class="mb-2 block text-sm font-medium">
           Camera Smoothness:
-          <span id="smoothnessValue">0.33</span>
+          <span id="smoothnessValue">0</span>
         </label>
         <input
           type="range"
@@ -101,14 +100,13 @@
           class="w-18"
           min="0.01"
           max="1"
-          step="0.001"
-          value="0.33"
+          step="0.01"
         />
       </div>
       <div class="slider-container">
         <label class="mb-2 block text-sm font-medium">
           Camera Zoom:
-          <span id="zoomValue">1.00</span>
+          <span id="zoomValue">0</span>
         </label>
         <input
           type="range"
@@ -117,7 +115,6 @@
           min="1"
           max="10"
           step="0.10"
-          value="1"
         />
       </div>
       <div class="slider-container">
@@ -132,13 +129,12 @@
           min="1"
           max="10"
           step="1"
-          value="1"
         />
       </div>
       <div class="slider-container">
         <label class="mb-2 block text-sm font-medium">
           Mouse Sensitivity:
-          <span id="sensitivityValue">100%</span>
+          <span id="sensitivityValue">0</span>
         </label>
         <input
           type="range"
@@ -147,34 +143,38 @@
           min="1"
           max="200"
           step="1"
-          value="100"
         />
       </div>
       <div class="slider-container">
         <label class="mb-2 block text-sm font-medium">
           FOV (Perspective):
-          <span id="perspectiveValue">1200px</span>
+          <span id="perspectiveValue">0</span>
         </label>
         <input
           type="range"
           id="perspective"
           class="w-18"
-          min="300"
-          max="4800"
+          min="500"
+          max="3000"
           step="100"
-          value="1200"
         />
+      </div>
+      <div class="slider-container">
+        <label class="flex items-center gap-2 text-sm font-medium" for="borderToggle">
+          <input type="checkbox" id="borderToggle" class="h-4 w-4" />
+          Show Face Borders
+        </label>
       </div>
     </div>
     <div id="render" class="flex min-h-screen min-w-screen items-center justify-center">
       <div class="cube-container relative">
         <div class="cube cursor-grab active:cursor-grabbing">
-          <div class="face front bg-blue-500"></div>
-          <div class="face back bg-yellow-500"></div>
-          <div class="face top bg-blue-300"></div>
-          <div class="face left bg-green-500"></div>
-          <div class="face right bg-red-500"></div>
-          <div class="face bottom bg-blue-700"></div>
+          <div class="face front"></div>
+          <div class="face back"></div>
+          <div class="face top"></div>
+          <div class="face left"></div>
+          <div class="face right"></div>
+          <div class="face bottom"></div>
         </div>
       </div>
     </div>

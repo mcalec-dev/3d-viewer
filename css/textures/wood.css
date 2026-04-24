@@ -1,0 +1,27 @@
+.face {
+	background-image:
+		linear-gradient(rgba(255, 255, 255, 0.06), rgba(0, 0, 0, 0.18)),
+		url("../../textures/wood.png");
+	background-size: cover;
+	background-position: center;
+	background-repeat: no-repeat;
+	background-blend-mode: soft-light, normal;
+}
+.face.front {
+	filter: saturate(1.04) brightness(1.02);
+}
+.face.back {
+	filter: saturate(0.9) brightness(0.86);
+}
+.face.left {
+	filter: hue-rotate(-4deg) saturate(1.03) brightness(0.95);
+}
+.face.right {
+	filter: hue-rotate(4deg) saturate(1.03) brightness(0.95);
+}
+.face.top {
+	filter: brightness(1.08) saturate(0.95);
+}
+.face.bottom {
+	filter: brightness(0.74) saturate(0.9);
+}

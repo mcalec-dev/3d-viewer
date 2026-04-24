@@ -2,14 +2,19 @@
   position: relative;
   transform-style: preserve-3d;
   width: 18rem;
-  height: 18rem; 
+  height: 18rem;
   z-index: 2;
 }
 .face {
   height: 100px;
   width: 100px;
   position: absolute;
-  border: 1px solid #000;
+  border: 0 solid transparent;
+  box-sizing: border-box;
+  backface-visibility: hidden;
+}
+.cube.show-borders .face {
+  border: var(--face-border-width, 1px) solid var(--face-border-color, #000);
 }
 .face.front {
   transform: translateZ(9rem);
@@ -31,30 +36,8 @@
 }
 .cube-container {
   position: relative;
-  /* default perspective, can be changed by JS */
   perspective: 1200px;
   perspective-origin: 50% 50%;
-}
-
-.bottom-grid {
-  position: absolute;
-  /* overlay inside the cube-container; JS will position/size it dynamically */
-  left: 0;
-  top: 0;
-  width: 300px;
-  height: 160px;
-  transform: none;
-  transform-origin: center center;
-  /* thin grid lines + subtle heavier lines */
-  background-image:
-    linear-gradient(rgba(0,0,0,0.12) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0,0,0,0.12) 1px, transparent 1px),
-    linear-gradient(rgba(0,0,0,0.06) 1px, transparent 1px);
-  background-size: 40px 40px, 40px 40px, 160px 160px;
-  background-position: center center;
-  opacity: 0.95;
-  pointer-events: none;
-  z-index: 1;
 }
 .slider-container {
   background: rgba(0, 0, 0, 0.8);

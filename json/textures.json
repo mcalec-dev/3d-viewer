@@ -1,0 +1,26 @@
+[
+  {
+    "name": "colors (default)",
+    "css": "/css/textures/colors.css"
+  },
+  {
+    "name": "grid (svg)",
+    "css": "/css/textures/grid.css"
+  },
+  {
+    "name": "noise (svg slow)",
+    "css": "/css/textures/noise.css"
+  },
+  {
+    "name": "wood (png)",
+    "css": "/css/textures/wood.css"
+  },
+  {
+    "name": "marble (png)",
+    "css": "/css/textures/marble.css"
+  },
+  {
+    "name": "metal (png)",
+    "css": "/css/textures/metal.css"
+  }
+]

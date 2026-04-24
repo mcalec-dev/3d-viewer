@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" role="img" aria-label="Grid texture">
+  <defs>
+    <pattern id="minorGrid" width="32" height="32" patternUnits="userSpaceOnUse">
+      <path d="M 32 0 L 0 0 0 32" fill="none" stroke="#4b5563" stroke-width="1" />
+    </pattern>
+    <pattern id="majorGrid" width="128" height="128" patternUnits="userSpaceOnUse">
+      <path d="M 128 0 L 0 0 0 128" fill="none" stroke="#9ca3af" stroke-width="1.5" />
+    </pattern>
+    <radialGradient id="vignette" cx="50%" cy="50%" r="70%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0" />
+      <stop offset="100%" stop-color="#000000" stop-opacity="0.3" />
+    </radialGradient>
+  </defs>
+  <rect width="512" height="512" fill="#111827" />
+  <rect width="512" height="512" fill="url(#minorGrid)" />
+  <rect width="512" height="512" fill="url(#majorGrid)" />
+  <rect width="512" height="512" fill="url(#vignette)" />
+</svg>

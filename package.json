@@ -1,6 +1,6 @@
 {
   "name": "3d-viewer",
-  "version": "0.0.4",
+  "version": "0.1.0",
   "description": "a simple 3d viewer using js and css",
   "keywords": [
     "3d"
