@@ -3,15 +3,31 @@
   "height": "100",
   "depth": "100",
   "smoothness": "0.50",
-  "zoom": "1",
+  "zoom": "0",
   "scale": "1",
   "sensitivity": "100",
   "perspective": "1000",
   "rx": "-25",
   "ry": "-47.5",
+  "mx": 0,
+  "my": 0,
+  "mz": 0,
   "border": {
     "enabled": false,
     "color": "#000000",
     "width": 1
+  },
+  "grid": {
+    "xy": false,
+    "xz": true,
+    "yz": false
+  },
+  "lighting": {
+    "enabled": true,
+    "color": "#ffffff",
+    "intensity": 35,
+    "azimuth": 315,
+    "elevation": 35,
+    "softness": 72
   }
 }

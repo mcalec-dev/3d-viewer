@@ -1,8 +1,8 @@
 (() => {
   const sliders = {
-    width: document.getElementById("cubeWidth"),
-    height: document.getElementById("cubeHeight"),
-    depth: document.getElementById("cubeDepth"),
+    width: document.getElementById("shapeWidth"),
+    height: document.getElementById("shapeHeight"),
+    depth: document.getElementById("shapeDepth"),
     smoothness: document.getElementById("smoothness"),
     zoom: document.getElementById("zoom"),
     scale: document.getElementById("scale"),
@@ -20,13 +20,34 @@
     perspective: document.getElementById("perspectiveValue"),
   };
   const borderToggle = document.getElementById("borderToggle");
+  const borderColor = document.getElementById("borderColor");
+  const borderWidthValue = document.getElementById("borderWidthValue");
+  const gridControls = {
+    xy: document.getElementById("gridXY"),
+    xz: document.getElementById("gridXZ"),
+    yz: document.getElementById("gridYZ"),
+  };
+  const lightingControls = {
+    enabled: document.getElementById("lightingEnabled"),
+    color: document.getElementById("lightingColor"),
+    intensity: document.getElementById("lightingIntensity"),
+    azimuth: document.getElementById("lightingAzimuth"),
+    elevation: document.getElementById("lightingElevation"),
+    softness: document.getElementById("lightingSoftness"),
+  };
+  const lightingDisplays = {
+    intensity: document.getElementById("lightingIntensityValue"),
+    azimuth: document.getElementById("lightingAzimuthValue"),
+    elevation: document.getElementById("lightingElevationValue"),
+    softness: document.getElementById("lightingSoftnessValue"),
+  };
   const state = window.viewerState;
   const settingsApi = window.viewerSettings;
   if (!state || !settingsApi) {
     throw new Error("viewerState and viewerSettings must be initialized before sliders.js");
   }
-  function enableInlineValueEdit(sliderEl, valueEl) {
-    if (!sliderEl || !valueEl) return;
+  function enableInlineValueEdit(sliderEl, valueEl, options = {}) {
+    if (!valueEl || (!sliderEl && typeof options.onCommit !== "function")) return;
     valueEl.style.cursor = "pointer";
     valueEl.title = "Click to type a value";
     valueEl.addEventListener("click", () => {
@@ -35,10 +56,13 @@
       const originalText = valueEl.textContent;
       const input = document.createElement("input");
       input.type = "number";
-      input.min = sliderEl.min;
-      input.max = sliderEl.max;
-      input.step = sliderEl.step || "1";
-      input.value = sliderEl.value;
+      const constraints = sliderEl
+        ? { min: sliderEl.min, max: sliderEl.max, step: sliderEl.step || "1" }
+        : { min: options.min || "", max: options.max || "", step: options.step || "1" };
+      input.min = constraints.min;
+      input.max = constraints.max;
+      input.step = constraints.step;
+      input.value = sliderEl ? sliderEl.value : originalText;
       input.style.width = "5.5rem";
       input.style.padding = "0.1rem 0.25rem";
       input.style.borderRadius = "0.25rem";
@@ -47,15 +71,24 @@
       valueEl.appendChild(input);
       input.focus();
       input.select();
+      let finished = false;
       const endEdit = (commit) => {
+        if (finished) return;
+        finished = true;
         if (commit) {
           const parsed = parseFloat(input.value);
           if (Number.isFinite(parsed)) {
-            let next = settingsApi.clampToSliderRange(parsed, sliderEl);
-            next = settingsApi.snapToSliderStep(next, sliderEl);
-            next = settingsApi.clampToSliderRange(next, sliderEl);
-            sliderEl.value = settingsApi.formatForSlider(next, sliderEl);
-            sliderEl.dispatchEvent(new Event("input", { bubbles: true }));
+            let next = settingsApi.clampToSliderRange(parsed, constraints);
+            next = settingsApi.snapToSliderStep(next, constraints);
+            next = settingsApi.clampToSliderRange(next, constraints);
+            const formatted = settingsApi.formatForSlider(next, constraints);
+            if (sliderEl) {
+              sliderEl.value = formatted;
+              sliderEl.dispatchEvent(new Event("input", { bubbles: true }));
+            } else {
+              options.onCommit(parseFloat(formatted));
+              valueEl.textContent = formatted;
+            }
           }
         }
         if (valueEl.contains(input)) {
@@ -79,63 +112,71 @@
       input.addEventListener("blur", () => endEdit(true));
     });
   }
-  function updatePerspective(containerEl) {
-    if (!containerEl) return;
-    containerEl.style.perspective = state.PERSPECTIVE + "px";
+  function updatePerspective(worldEl) {
+    const renderEl = worldEl && worldEl.parentElement;
+    if (!renderEl) return;
+    renderEl.style.perspective = state.PERSPECTIVE + "px";
   }
-  function applyBorderSettings(cubeEl) {
-    if (!cubeEl) return;
+  function applyBorderSettings(shapeEl) {
+    if (!shapeEl) return;
     const enabled = Boolean(state.border && state.border.enabled);
     const color = state.border && state.border.color ? state.border.color : "#000000";
     const width =
       state.border && Number.isFinite(parseFloat(state.border.width))
         ? parseFloat(state.border.width)
         : 1;
-    cubeEl.style.setProperty("--face-border-color", color);
-    cubeEl.style.setProperty("--face-border-width", `${width}px`);
-    cubeEl.classList.toggle("show-borders", enabled);
+    shapeEl.style.setProperty("--face-border-color", color);
+    shapeEl.style.setProperty("--face-border-width", `${width}px`);
+    shapeEl.classList.toggle("show-borders", enabled);
   }
-  function updateCardDimensions(cubeEl) {
-    if (!cubeEl || !sliders.width) return;
+  function applyLightingSettings(shapeEl) {
+    if (!shapeEl) return;
+    const lighting = state.lighting;
+    shapeEl.classList.toggle("lighting-enabled", Boolean(lighting.enabled));
+    shapeEl.style.setProperty("--lighting-color", lighting.color);
+    shapeEl.style.setProperty("--lighting-intensity", String((lighting.intensity / 100) * 0.7));
+    shapeEl.style.setProperty("--lighting-direction", `${90 - lighting.azimuth}deg`);
+    shapeEl.style.setProperty("--lighting-softness", `${lighting.softness}%`);
+  }
+  function applyGridSettings(worldEl) {
+    Object.entries(gridControls).forEach(([plane, control]) => {
+      if (!control) return;
+      control.checked = Boolean(state.grid[plane]);
+      const grid = worldEl.querySelector(`.world-grid-${plane}`);
+      if (grid) grid.classList.toggle("enabled", control.checked);
+    });
+  }
+  function updateLightingDisplay() {
+    Object.entries(lightingDisplays).forEach(([key, display]) => {
+      if (display) display.textContent = String(state.lighting[key]);
+    });
+  }
+  function updateShapeDimensions(shapeEl) {
+    if (!shapeEl || !sliders.width) return;
     const width = parseFloat(sliders.width.value);
     const height = parseFloat(sliders.height.value);
     const depth = parseFloat(sliders.depth.value);
-    const halfD = depth / 2;
-    const halfH = height / 2;
-    const halfW = width / 2;
-    const centerFace = (faceEl, faceWidth, faceHeight) => {
-      if (!faceEl) return;
-      faceEl.style.width = faceWidth + "px";
-      faceEl.style.height = faceHeight + "px";
-      faceEl.style.left = (width - faceWidth) / 2 + "px";
-      faceEl.style.top = (height - faceHeight) / 2 + "px";
-    };
-    cubeEl.style.width = width + "px";
-    cubeEl.style.height = height + "px";
-    const frontFace = cubeEl.querySelector(".face.front");
-    centerFace(frontFace, width, height);
-    if (frontFace) frontFace.style.transform = `translateZ(${halfD}px)`;
-    const backFace = cubeEl.querySelector(".face.back");
-    centerFace(backFace, width, height);
-    if (backFace) backFace.style.transform = `rotateY(180deg) translateZ(${halfD}px)`;
-    const topFace = cubeEl.querySelector(".face.top");
-    centerFace(topFace, width, depth);
-    if (topFace) topFace.style.transform = `rotateX(90deg) translateZ(${halfH}px)`;
-    const bottomFace = cubeEl.querySelector(".face.bottom");
-    centerFace(bottomFace, width, depth);
-    if (bottomFace) bottomFace.style.transform = `rotateX(-90deg) translateZ(${halfH}px)`;
-
-    const rightFace = cubeEl.querySelector(".face.right");
-    centerFace(rightFace, depth, height);
-    if (rightFace) rightFace.style.transform = `rotateY(90deg) translateZ(${halfW}px)`;
-    const leftFace = cubeEl.querySelector(".face.left");
-    centerFace(leftFace, depth, height);
-    if (leftFace) leftFace.style.transform = `rotateY(-90deg) translateZ(${halfW}px)`;
+    const worldEl = shapeEl.parentElement;
+    if (worldEl) {
+      worldEl.style.width = width + "px";
+      worldEl.style.height = height + "px";
+    }
+    if (window.shapeViewer) window.shapeViewer.updateDimensions(width, height, depth);
   }
-  async function init(containerEl, cubeEl) {
+  async function init(worldEl, shapeEl) {
     const defaults = await settingsApi.ensureDefaultsLoaded();
     settingsApi.applyDefaultsToState(state, defaults);
     settingsApi.applyDefaultsToSliders(sliders, defaults);
+    Object.entries(lightingControls).forEach(([key, control]) => {
+      if (!control) return;
+      if (key === "enabled") {
+        control.checked = state.lighting.enabled;
+      } else if (key === "color") {
+        control.value = state.lighting.color;
+      } else {
+        control.value = defaults.lighting[key];
+      }
+    });
     settingsApi.restoreSliderSettings(sliders, (stored) => {
       if (stored.border && typeof stored.border === "object") {
         if (Object.prototype.hasOwnProperty.call(stored.border, "enabled")) {
@@ -154,6 +195,36 @@
         const raw = stored.showBorders;
         state.border.enabled = raw === true || raw === "true";
       }
+      if (stored.lighting && typeof stored.lighting === "object") {
+        const savedLighting = stored.lighting;
+        if (Object.prototype.hasOwnProperty.call(savedLighting, "enabled")) {
+          state.lighting.enabled = savedLighting.enabled === true || savedLighting.enabled === "true";
+        }
+        if (typeof savedLighting.color === "string" && /^#[0-9a-f]{6}$/i.test(savedLighting.color)) {
+          state.lighting.color = savedLighting.color;
+        }
+        Object.entries(lightingControls).forEach(([key, control]) => {
+          if (!control || key === "enabled" || key === "color") return;
+          const value = parseFloat(savedLighting[key]);
+          if (!Number.isFinite(value)) return;
+          let next = settingsApi.clampToSliderRange(value, control);
+          next = settingsApi.snapToSliderStep(next, control);
+          next = settingsApi.clampToSliderRange(next, control);
+          control.value = settingsApi.formatForSlider(next, control);
+          state.lighting[key] = parseFloat(control.value);
+        });
+      }
+      if (stored.grid && typeof stored.grid === "object") {
+        Object.keys(gridControls).forEach((plane) => {
+          const value = stored.grid[plane];
+          if (typeof value === "boolean") state.grid[plane] = value;
+          else if (value === "true" || value === "false") state.grid[plane] = value === "true";
+        });
+      }
+      ["rx", "ry", "mx", "my", "mz"].forEach((key) => {
+        const value = parseFloat(stored[key]);
+        if (Number.isFinite(value)) state.target[key] = value;
+      });
     });
     settingsApi.syncRuntimeFromSliders(sliders, state);
     if (!state.border || typeof state.border !== "object") {
@@ -171,6 +242,13 @@
           color: state.border.color,
           width: state.border.width,
         },
+        lighting: { ...state.lighting },
+        grid: { ...state.grid },
+        rx: target.rx,
+        ry: target.ry,
+        mx: target.mx,
+        my: target.my,
+        mz: target.mz,
       });
     };
 
@@ -195,8 +273,30 @@
         state.PERSPECTIVE = v;
       },
       target,
-      updateCardDimensions: () => updateCardDimensions(cubeEl),
-      updatePerspective: () => updatePerspective(containerEl),
+      saveSettings: persistSettings,
+      resetCamera: () => {
+        target.rx = parseFloat(defaults.rx);
+        target.ry = parseFloat(defaults.ry);
+        target.mx = parseFloat(defaults.mx);
+        target.my = parseFloat(defaults.my);
+        target.mz = parseFloat(defaults.mz);
+        window.sliders.syncZoomSlider(parseFloat(defaults.zoom));
+        persistSettings();
+      },
+      toggleBorders: () => {
+        state.border.enabled = !state.border.enabled;
+        if (borderToggle) borderToggle.checked = state.border.enabled;
+        applyBorderSettings(shapeEl);
+        persistSettings();
+      },
+      toggleLighting: () => {
+        state.lighting.enabled = !state.lighting.enabled;
+        if (lightingControls.enabled) lightingControls.enabled.checked = state.lighting.enabled;
+        applyLightingSettings(shapeEl);
+        persistSettings();
+      },
+      updateShapeDimensions: () => updateShapeDimensions(shapeEl),
+      updatePerspective: () => updatePerspective(worldEl),
       updateZoomDisplay: (z) => {
         if (valueDisplays.zoom) {
           try {
@@ -205,6 +305,15 @@
             valueDisplays.zoom.textContent = z;
           }
         }
+      },
+      syncZoomSlider: (z) => {
+        let next = settingsApi.clampToSliderRange(z, sliders.zoom);
+        next = settingsApi.snapToSliderStep(next, sliders.zoom);
+        next = settingsApi.clampToSliderRange(next, sliders.zoom);
+        sliders.zoom.value = settingsApi.formatForSlider(next, sliders.zoom);
+        target.z = parseFloat(sliders.zoom.value);
+        if (valueDisplays.zoom) valueDisplays.zoom.textContent = sliders.zoom.value;
+        persistSettings();
       },
     };
     if (!sliders.width) return;
@@ -224,19 +333,29 @@
     if (valueDisplays.perspective)
       valueDisplays.perspective.textContent = sliders.perspective.value + "px";
     if (borderToggle) borderToggle.checked = Boolean(state.border.enabled);
+    applyGridSettings(worldEl);
+    if (borderColor) borderColor.value = state.border.color;
+    if (borderWidthValue) borderWidthValue.textContent = state.border.width;
+    if (lightingControls.enabled) lightingControls.enabled.checked = Boolean(state.lighting.enabled);
+    if (lightingControls.color) lightingControls.color.value = state.lighting.color;
+    Object.entries(lightingControls).forEach(([key, control]) => {
+      if (!control || key === "enabled" || key === "color") return;
+      control.value = String(state.lighting[key]);
+    });
+    updateLightingDisplay();
     sliders.width.addEventListener("input", (e) => {
       if (valueDisplays.width) valueDisplays.width.textContent = e.target.value;
-      updateCardDimensions(cubeEl);
+      updateShapeDimensions(shapeEl);
       persistSettings();
     });
     sliders.height.addEventListener("input", (e) => {
       if (valueDisplays.height) valueDisplays.height.textContent = e.target.value;
-      updateCardDimensions(cubeEl);
+      updateShapeDimensions(shapeEl);
       persistSettings();
     });
     sliders.depth.addEventListener("input", (e) => {
       if (valueDisplays.depth) valueDisplays.depth.textContent = e.target.value;
-      updateCardDimensions(cubeEl);
+      updateShapeDimensions(shapeEl);
       persistSettings();
     });
     sliders.smoothness.addEventListener("input", (e) => {
@@ -271,16 +390,46 @@
       if (valueDisplays.perspective)
         valueDisplays.perspective.textContent = e.target.value + "px";
       state.PERSPECTIVE = parseFloat(e.target.value);
-      updatePerspective(containerEl);
+      updatePerspective(worldEl);
       persistSettings();
     });
     if (borderToggle) {
       borderToggle.addEventListener("input", (e) => {
         state.border.enabled = e.target.checked;
-        applyBorderSettings(cubeEl);
+        applyBorderSettings(shapeEl);
         persistSettings();
       });
     }
+    Object.entries(gridControls).forEach(([plane, control]) => {
+      if (!control) return;
+      control.addEventListener("input", (e) => {
+        state.grid[plane] = e.target.checked;
+        applyGridSettings(worldEl);
+        persistSettings();
+      });
+    });
+    if (borderColor) {
+      borderColor.addEventListener("input", (e) => {
+        state.border.color = e.target.value;
+        applyBorderSettings(shapeEl);
+        persistSettings();
+      });
+    }
+    Object.entries(lightingControls).forEach(([key, control]) => {
+      if (!control) return;
+      control.addEventListener("input", (e) => {
+        if (key === "enabled") {
+          state.lighting.enabled = e.target.checked;
+        } else if (key === "color") {
+          state.lighting.color = e.target.value;
+        } else {
+          state.lighting[key] = parseFloat(e.target.value);
+          if (lightingDisplays[key]) lightingDisplays[key].textContent = e.target.value;
+        }
+        applyLightingSettings(shapeEl);
+        persistSettings();
+      });
+    });
     enableInlineValueEdit(sliders.width, valueDisplays.width);
     enableInlineValueEdit(sliders.height, valueDisplays.height);
     enableInlineValueEdit(sliders.depth, valueDisplays.depth);
@@ -289,10 +438,20 @@
     enableInlineValueEdit(sliders.scale, valueDisplays.scale);
     enableInlineValueEdit(sliders.sensitivity, valueDisplays.sensitivity);
     enableInlineValueEdit(sliders.perspective, valueDisplays.perspective);
+    enableInlineValueEdit(null, borderWidthValue, {
+      min: "0",
+      step: "0.1",
+      onCommit: (width) => {
+        state.border.width = width;
+        applyBorderSettings(shapeEl);
+        persistSettings();
+      },
+    });
 
-    updateCardDimensions(cubeEl);
-    updatePerspective(containerEl);
-    applyBorderSettings(cubeEl);
+    updateShapeDimensions(shapeEl);
+    updatePerspective(worldEl);
+    applyBorderSettings(shapeEl);
+    applyLightingSettings(shapeEl);
   }
   window.initSliders = init;
 })();

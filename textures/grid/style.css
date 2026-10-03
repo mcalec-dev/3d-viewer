@@ -1,0 +1,6 @@
+.face {
+  background-image: url("texture.svg");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}

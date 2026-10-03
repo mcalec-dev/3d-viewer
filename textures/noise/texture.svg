@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" role="img" aria-label="Noise texture">
+  <defs>
+<pattern id="grain" width="8" height="8" patternUnits="userSpaceOnUse">
+  <path d="M.5 .8h.18 M2.1 .3h.18 M3.7 1.2h.18 M5.9 .5h.18 M7.1 1.8h.18 M1.2 2.7h.18 M3.1 2.3h.18 M4.8 3.1h.18 M6.7 2.8h.18 M.4 4.1h.18 M2.4 4.6h.18 M4.1 4.2h.18 M7.2 4.7h.18 M1.3 5.8h.18 M3.5 5.5h.18 M5.4 6.2h.18 M7.1 6.6h.18 M.4 7.3h.18 M2.5 7.1h.18 M4.5 7.6h.18 M6.2 7.4h.18" stroke="#f8fafc" stroke-opacity=".28" stroke-width=".55" stroke-linecap="round" />
+  <path d="M1.4 1.6h.18 M4.5 .4h.18 M6.6 1.1h.18 M.4 2.1h.18 M2.3 3.5h.18 M5.8 2.3h.18 M7.5 3.7h.18 M1.3 4.8h.18 M3.4 3.9h.18 M5.2 5.1h.18 M6.5 5.6h.18 M.8 6.5h.18 M2.7 6.2h.18 M4.4 6.9h.18 M6.1 7.8h.18" stroke="#05080c" stroke-opacity=".35" stroke-width=".55" stroke-linecap="round" />
+</pattern>
+  </defs>
+<rect width="512" height="512" fill="#17202a" />
+<rect width="512" height="512" fill="url(#grain)" />
+
+</svg>

@@ -23,6 +23,17 @@
 		if (typeof value === "string" && value.trim() !== "") return value;
 		throw new Error(`Invalid or missing default for ${key} in ${DEFAULTS_PATH}`);
 	}
+	function assertColor(value, key) {
+		if (typeof value === "string" && /^#[0-9a-f]{6}$/i.test(value)) return value;
+		throw new Error(`Invalid or missing default for ${key} in ${DEFAULTS_PATH}`);
+	}
+	function assertNumberInRange(value, key, min, max) {
+		const parsed = assertNumber(value, key);
+		if (parsed < min || parsed > max) {
+			throw new Error(`Invalid or missing default for ${key} in ${DEFAULTS_PATH}`);
+		}
+		return parsed;
+	}
 	function assertPositiveNumber(value, key) {
 		const parsed = parseFloat(value);
 		if (!Number.isFinite(parsed) || parsed < 0) {
@@ -37,21 +48,43 @@
 		if (!raw.border || typeof raw.border !== "object") {
 			throw new Error(`Invalid or missing default for border in ${DEFAULTS_PATH}`);
 		}
+		if (!raw.lighting || typeof raw.lighting !== "object") {
+			throw new Error(`Invalid or missing default for lighting in ${DEFAULTS_PATH}`);
+		}
+		if (!raw.grid || typeof raw.grid !== "object") {
+			throw new Error(`Invalid or missing default for grid in ${DEFAULTS_PATH}`);
+		}
 		return {
-			width: String(assertNumber(raw.width, "width")),
-			height: String(assertNumber(raw.height, "height")),
-			depth: String(assertNumber(raw.depth, "depth")),
-			smoothness: String(assertNumber(raw.smoothness, "smoothness")),
-			zoom: String(assertNumber(raw.zoom, "zoom")),
-			scale: String(assertNumber(raw.scale, "scale")),
-			sensitivity: String(assertNumber(raw.sensitivity, "sensitivity")),
-			perspective: String(assertNumber(raw.perspective, "perspective")),
+			width: String(assertNumberInRange(raw.width, "width", 10, 1000)),
+			height: String(assertNumberInRange(raw.height, "height", 10, 1000)),
+			depth: String(assertNumberInRange(raw.depth, "depth", 10, 1000)),
+			smoothness: String(assertNumberInRange(raw.smoothness, "smoothness", 0.01, 1)),
+			zoom: String(assertNumberInRange(raw.zoom, "zoom", -10, 10)),
+			scale: String(assertNumberInRange(raw.scale, "scale", 1, 10)),
+			sensitivity: String(assertNumberInRange(raw.sensitivity, "sensitivity", 1, 200)),
+			perspective: String(assertNumberInRange(raw.perspective, "perspective", 500, 3000)),
 			rx: String(assertNumber(raw.rx, "rx")),
 			ry: String(assertNumber(raw.ry, "ry")),
+			mx: String(assertNumber(raw.mx, "mx")),
+			my: String(assertNumber(raw.my, "my")),
+			mz: String(assertNumber(raw.mz, "mz")),
 			border: {
 				enabled: assertBoolean(raw.border.enabled, "border.enabled"),
-				color: assertString(raw.border.color, "border.color"),
+				color: assertColor(raw.border.color, "border.color"),
 				width: assertPositiveNumber(raw.border.width, "border.width"),
+			},
+			grid: {
+				xy: assertBoolean(raw.grid.xy, "grid.xy"),
+				xz: assertBoolean(raw.grid.xz, "grid.xz"),
+				yz: assertBoolean(raw.grid.yz, "grid.yz"),
+			},
+			lighting: {
+				enabled: assertBoolean(raw.lighting.enabled, "lighting.enabled"),
+				color: assertColor(raw.lighting.color, "lighting.color"),
+				intensity: String(assertNumberInRange(raw.lighting.intensity, "lighting.intensity", 0, 100)),
+				azimuth: String(assertNumberInRange(raw.lighting.azimuth, "lighting.azimuth", 0, 359)),
+				elevation: String(assertNumberInRange(raw.lighting.elevation, "lighting.elevation", -90, 90)),
+				softness: String(assertNumberInRange(raw.lighting.softness, "lighting.softness", 5, 100)),
 			},
 		};
 	}
@@ -88,11 +121,23 @@
 		state.PERSPECTIVE = parseFloat(defaults.perspective);
 		state.target.rx = parseFloat(defaults.rx);
 		state.target.ry = parseFloat(defaults.ry);
+		state.target.mx = parseFloat(defaults.mx);
+		state.target.my = parseFloat(defaults.my);
+		state.target.mz = parseFloat(defaults.mz);
 		state.target.s = parseFloat(defaults.scale);
 		state.target.z = parseFloat(defaults.zoom);
 		state.border.enabled = defaults.border.enabled;
 		state.border.color = defaults.border.color;
 		state.border.width = defaults.border.width;
+		state.grid.xy = defaults.grid.xy;
+		state.grid.xz = defaults.grid.xz;
+		state.grid.yz = defaults.grid.yz;
+		state.lighting.enabled = defaults.lighting.enabled;
+		state.lighting.color = defaults.lighting.color;
+		state.lighting.intensity = parseFloat(defaults.lighting.intensity);
+		state.lighting.azimuth = parseFloat(defaults.lighting.azimuth);
+		state.lighting.elevation = parseFloat(defaults.lighting.elevation);
+		state.lighting.softness = parseFloat(defaults.lighting.softness);
 	}
 	function parseStepDecimals(stepValue) {
 		const stepText = String(stepValue || "1");

@@ -1,5 +1,6 @@
 (() => {
-	const TEXTURES_PATH = "json/textures.json";
+	const TEXTURES_PATH = "textures/";
+	const TEXTURES_MANIFEST_PATH = "json/textures.json";
 	const TEXTURE_LINK_ID = "activeTextureStylesheet";
 	const TEXTURE_STORAGE_KEY = "selected-texture";
 	function setTextureStylesheet(cssPath) {
@@ -39,21 +40,40 @@
 			selectEl.appendChild(option);
 		});
 	}
+	async function discoverTextures() {
+		const manifestResponse = await fetch(TEXTURES_MANIFEST_PATH, { cache: "no-store" });
+		if (!manifestResponse.ok) {
+			throw new Error(`Failed to load ${TEXTURES_MANIFEST_PATH}: ${manifestResponse.status}`);
+		}
+		const manifest = await manifestResponse.json();
+		if (
+			!manifest ||
+			!Array.isArray(manifest.textures) ||
+			manifest.textures.length === 0 ||
+			manifest.textures.some((name) => typeof name !== "string" || !/^[a-z0-9][a-z0-9_-]*$/i.test(name)) ||
+			new Set(manifest.textures).size !== manifest.textures.length
+		) {
+			throw new Error(`Invalid texture manifest in ${TEXTURES_MANIFEST_PATH}`);
+		}
+
+		const textures = await Promise.all(
+			manifest.textures.map(async (name) => {
+				const cssUrl = new URL(`${name}/style.css`, new URL(TEXTURES_PATH, document.baseURI));
+				const response = await fetch(cssUrl, { cache: "no-store" });
+				return response.ok ? { name, css: cssUrl.href } : null;
+			}),
+		);
+		return textures.filter(Boolean);
+	}
 	document.addEventListener("DOMContentLoaded", async () => {
 		const selectEl = document.getElementById("textureSelect");
 		if (!selectEl) return;
 		try {
-			const response = await fetch(TEXTURES_PATH, { cache: "no-store" });
-			if (!response.ok) {
-				throw new Error(`Failed to load ${TEXTURES_PATH}: ${response.status}`);
-			}
-			const textures = await response.json();
+			const textures = await discoverTextures();
 			if (!Array.isArray(textures) || textures.length === 0) {
-				throw new Error("No textures defined in textures.json");
+				throw new Error("No texture folders containing style.css were found");
 			}
-			const validTextures = textures.filter(
-				(item) => item && typeof item.name === "string" && typeof item.css === "string"
-			);
+			const validTextures = textures.filter((item) => item && item.name && item.css);
 			if (validTextures.length === 0) {
 				throw new Error("No valid texture entries found");
 			}

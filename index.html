@@ -7,6 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script defer src="js/state.js"></script>
     <script defer src="js/settings.js"></script>
+    <script defer src="js/shapes.js"></script>
     <script defer src="js/renderer.js"></script>
     <script defer src="js/sliders.js"></script>
     <script defer src="js/info.js"></script>
@@ -21,22 +22,24 @@
       <div id="currentPitch">
         Pitch: <span id="pitchValue">0</span>°
       </div>
+      <div id="currentCameraPosition">
+        Camera XYZ: <span id="cameraPositionValue">0, 0, 0</span>
+      </div>
+      <div id="currentWorldOffset">
+        World XYZ: <span id="worldOffsetValue">0, 0, 0</span>
+      </div>
       <div id="currentFPS">
         FPS: <span id="fpsValue">0</span>
       </div>
     </div>
     <div id="chooser" class="fixed bottom-4 right-4 z-10 text-white">
       <div class="mb-2 flex items-center">
-        <!-- future shape chooser -->
         <label for="shapeChooser" class="mr-2">Shape:</label>
         <select id="shapeChooser" class="rounded bg-slate-700 p-1 text-white">
-          <option value="cube">Cube</option>
-          <option value="pyramid">Pyramid</option>
-          <option value="sphere">Sphere</option>
+          <option value="">Loading shapes...</option>
         </select>
       </div>
       <div class="flex items-center">
-        <!-- future texture chooser -->
         <label for="textureSelect" class="mr-2">Texture:</label>
         <select id="textureSelect" class="rounded bg-slate-700 p-1 text-white">
           <option value="">Loading textures...</option>
@@ -44,138 +47,156 @@
       </div>
     </div>
     <div id="sliders" class="fixed left-4 top-4 z-10 text-white">
-      <div class="slider-container">
-        <label class="mb-2 block text-sm font-medium">
-          X (width):
-          <span id="widthValue">0</span>
-          px
-        </label>
-        <input
-          type="range"
-          id="cubeWidth"
-          class="w-18"
-          min="10"
-          max="1000"
-          value="100"
-        />
-      </div>
-      <div class="slider-container">
-        <label class="mb-2 block text-sm font-medium">
-          Y (height):
-          <span id="heightValue">0</span>
-          px
-        </label>
-        <input
-          type="range"
-          id="cubeHeight"
-          class="w-18"
-          min="10"
-          max="1000"
-          value="100"
-        />
-      </div>
-      <div class="slider-container">
-        <label class="mb-2 block text-sm font-medium">
-          Z (depth):
-          <span id="depthValue">0</span>
-          px
-        </label>
-        <input
-          type="range"
-          id="cubeDepth"
-          class="w-18"
-          min="10"
-          max="1000"
-          value="100"
-        />
-      </div>
-      <div class="slider-container">
-        <label class="mb-2 block text-sm font-medium">
-          Camera Smoothness:
-          <span id="smoothnessValue">0</span>
-        </label>
-        <input
-          type="range"
-          id="smoothness"
-          class="w-18"
-          min="0.01"
-          max="1"
-          step="0.01"
-        />
-      </div>
-      <div class="slider-container">
-        <label class="mb-2 block text-sm font-medium">
-          Camera Zoom:
-          <span id="zoomValue">0</span>
-        </label>
-        <input
-          type="range"
-          id="zoom"
-          class="w-18"
-          min="1"
-          max="10"
-          step="0.10"
-        />
-      </div>
-      <div class="slider-container">
-        <label class="mb-2 block text-sm font-medium">
-          Scale:
-          <span id="scaleValue">1</span>
-        </label>
-        <input
-          type="range"
-          id="scale"
-          class="w-18"
-          min="1"
-          max="10"
-          step="1"
-        />
-      </div>
-      <div class="slider-container">
-        <label class="mb-2 block text-sm font-medium">
-          Mouse Sensitivity:
-          <span id="sensitivityValue">0</span>
-        </label>
-        <input
-          type="range"
-          id="sensitivity"
-          class="w-18"
-          min="1"
-          max="200"
-          step="1"
-        />
-      </div>
-      <div class="slider-container">
-        <label class="mb-2 block text-sm font-medium">
-          FOV (Perspective):
-          <span id="perspectiveValue">0</span>
-        </label>
-        <input
-          type="range"
-          id="perspective"
-          class="w-18"
-          min="500"
-          max="3000"
-          step="100"
-        />
-      </div>
-      <div class="slider-container">
-        <label class="flex items-center gap-2 text-sm font-medium" for="borderToggle">
-          <input type="checkbox" id="borderToggle" class="h-4 w-4" />
-          Show Face Borders
-        </label>
-      </div>
+      <details class="slider-container" name="settings">
+        <summary>Dimensions</summary>
+        <div class="border-settings">
+          <div class="setting-field">
+            <div class="setting-field-heading">
+              <label for="shapeWidth">X (width)</label>
+              <span><span id="widthValue">0</span> px</span>
+            </div>
+            <input type="range" id="shapeWidth" class="w-18" min="10" max="1000" value="100" />
+          </div>
+          <div class="setting-field">
+            <div class="setting-field-heading">
+              <label for="shapeHeight">Y (height)</label>
+              <span><span id="heightValue">0</span> px</span>
+            </div>
+            <input type="range" id="shapeHeight" class="w-18" min="10" max="1000" value="100" />
+          </div>
+          <div class="setting-field">
+            <div class="setting-field-heading">
+              <label for="shapeDepth">Z (depth)</label>
+              <span><span id="depthValue">0</span> px</span>
+            </div>
+            <input type="range" id="shapeDepth" class="w-18" min="10" max="1000" value="100" />
+          </div>
+        </div>
+      </details>
+      <details class="slider-container" name="settings">
+        <summary>Camera</summary>
+        <div class="border-settings">
+          <div class="setting-field">
+            <div class="setting-field-heading">
+              <label for="smoothness">Smoothness</label>
+              <span id="smoothnessValue">0</span>
+            </div>
+            <input type="range" id="smoothness" class="w-18" min="0.01" max="1" step="0.01" value="0.50" />
+          </div>
+          <div class="setting-field">
+            <div class="setting-field-heading">
+              <label for="zoom">Camera Zoom</label>
+              <span id="zoomValue">0</span>
+            </div>
+            <input type="range" id="zoom" class="w-18" min="-10" max="10" step="0.10" value="0" />
+          </div>
+          <div class="setting-field">
+            <div class="setting-field-heading">
+              <label for="scale">Face Scale</label>
+              <span id="scaleValue">1</span>
+            </div>
+            <input type="range" id="scale" class="w-18" min="1" max="10" step="1" value="1" />
+          </div>
+          <div class="setting-field">
+            <div class="setting-field-heading">
+              <label for="sensitivity">Mouse Sensitivity</label>
+              <span id="sensitivityValue">0</span>
+            </div>
+            <input type="range" id="sensitivity" class="w-18" min="1" max="200" step="1" value="100" />
+          </div>
+          <div class="setting-field">
+            <div class="setting-field-heading">
+              <label for="perspective">FOV (Perspective)</label>
+              <span id="perspectiveValue">0</span>
+            </div>
+            <input type="range" id="perspective" class="w-18" min="500" max="3000" step="100" value="1000" />
+          </div>
+        </div>
+      </details>
+      <details class="slider-container" name="settings">
+        <summary>World Grid</summary>
+        <div class="border-settings">
+          <label class="flex items-center gap-2 text-sm font-medium" for="gridXY">
+            <input type="checkbox" id="gridXY" class="h-4 w-4" />
+            XY plane
+          </label>
+          <label class="flex items-center gap-2 text-sm font-medium" for="gridXZ">
+            <input type="checkbox" id="gridXZ" class="h-4 w-4" checked />
+            XZ plane (floor)
+          </label>
+          <label class="flex items-center gap-2 text-sm font-medium" for="gridYZ">
+            <input type="checkbox" id="gridYZ" class="h-4 w-4" />
+            YZ plane
+          </label>
+        </div>
+      </details>
+      <details class="slider-container" name="settings">
+        <summary>Face Borders</summary>
+        <div class="border-settings">
+          <label class="flex items-center gap-2 text-sm font-medium" for="borderToggle">
+            <input type="checkbox" id="borderToggle" class="h-4 w-4" />
+            Enabled
+          </label>
+          <label class="setting-field" for="borderColor">
+            Color
+            <input type="color" id="borderColor" />
+          </label>
+          <div class="setting-field">
+            <div class="setting-field-heading">
+              <label for="borderWidth">Width</label>
+              <span><span id="borderWidthValue">1</span> px</span>
+            </div>
+          </div>
+        </div>
+      </details>
+      <details class="slider-container" name="settings">
+        <summary>Lighting</summary>
+        <div class="border-settings">
+          <label class="flex items-center gap-2 text-sm font-medium" for="lightingEnabled">
+            <input type="checkbox" id="lightingEnabled" class="h-4 w-4" checked />
+            Enabled
+          </label>
+          <label class="setting-field" for="lightingColor">
+            Color
+            <input type="color" id="lightingColor" value="#ffffff" />
+          </label>
+          <div class="setting-field">
+            <div class="setting-field-heading">
+              <label for="lightingIntensity">Intensity</label>
+              <span><span id="lightingIntensityValue">35</span>%</span>
+            </div>
+            <input type="range" id="lightingIntensity" class="w-18" min="0" max="100" step="1" value="35" />
+          </div>
+          <div class="setting-field">
+            <div class="setting-field-heading">
+              <label for="lightingAzimuth">Azimuth</label>
+              <span><span id="lightingAzimuthValue">315</span>°</span>
+            </div>
+            <input type="range" id="lightingAzimuth" class="w-18" min="0" max="359" step="1" value="315" />
+          </div>
+          <div class="setting-field">
+            <div class="setting-field-heading">
+              <label for="lightingElevation">Elevation</label>
+              <span><span id="lightingElevationValue">35</span>°</span>
+            </div>
+            <input type="range" id="lightingElevation" class="w-18" min="-90" max="90" step="1" value="35" />
+          </div>
+          <div class="setting-field">
+            <div class="setting-field-heading">
+              <label for="lightingSoftness">Softness</label>
+              <span><span id="lightingSoftnessValue">72</span>%</span>
+            </div>
+            <input type="range" id="lightingSoftness" class="w-18" min="5" max="100" step="1" value="72" />
+          </div>
+        </div>
+      </details>
     </div>
     <div id="render" class="flex min-h-screen min-w-screen items-center justify-center">
-      <div class="cube-container relative">
-        <div class="cube cursor-grab active:cursor-grabbing">
-          <div class="face front"></div>
-          <div class="face back"></div>
-          <div class="face top"></div>
-          <div class="face left"></div>
-          <div class="face right"></div>
-          <div class="face bottom"></div>
-        </div>
+      <div class="world">
+        <div class="world-grid world-grid-xy"></div>
+        <div class="world-grid world-grid-xz"></div>
+        <div class="world-grid world-grid-yz"></div>
+        <div class="shape"></div>
       </div>
     </div>
   </body>

@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://3d.mcalec.dev/json/shape.schema.json",
+  "title": "3D Viewer Shape",
+  "type": "object",
+  "required": ["name", "faces"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "name": { "type": "string", "minLength": 1 },
+    "faces": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "vertices"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-zA-Z][\\w-]*$" },
+          "vertices": {
+            "type": "array",
+            "minItems": 3,
+            "items": {
+              "type": "array",
+              "prefixItems": [
+                { "type": "number", "minimum": -0.5, "maximum": 0.5 },
+                { "type": "number", "minimum": -0.5, "maximum": 0.5 },
+                { "type": "number", "minimum": -0.5, "maximum": 0.5 }
+              ],
+              "minItems": 3,
+              "maxItems": 3
+            }
+          },
+          "color": { "type": "string" },
+          "image": { "type": "string" }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

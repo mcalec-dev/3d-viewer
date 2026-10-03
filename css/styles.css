@@ -1,8 +1,46 @@
-.cube {
+.world {
   position: relative;
-  transform-style: preserve-3d;
   width: 18rem;
   height: 18rem;
+  transform-style: preserve-3d;
+}
+.world-grid {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 4000px;
+  height: 4000px;
+  visibility: hidden;
+  pointer-events: none;
+  background-image:
+    linear-gradient(to right, rgba(255, 255, 255, 0.24) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.24) 1px, transparent 1px);
+  background-size: 24px 24px;
+  background-position: 8px 8px;
+  transform: translate(-50%, -50%);
+  transform-style: preserve-3d;
+}
+.world-grid.enabled {
+  visibility: visible;
+}
+.world-grid-xy {
+  z-index: 1;
+}
+.world-grid-xz {
+  z-index: 1;
+  transform: translate(-50%, -50%) rotateX(90deg);
+}
+.world-grid-yz {
+  z-index: 1;
+  transform: translate(-50%, -50%) rotateY(90deg);
+}
+.shape {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 0;
+  height: 0;
+  transform-style: preserve-3d;
   z-index: 2;
 }
 .face {
@@ -12,9 +50,44 @@
   border: 0 solid transparent;
   box-sizing: border-box;
   backface-visibility: hidden;
+  isolation: isolate;
 }
-.cube.show-borders .face {
+.face::before,
+.face::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+.face::before {
+  background: linear-gradient(
+    var(--lighting-direction, 315deg),
+    var(--lighting-color, #ffffff) 0%,
+    transparent var(--lighting-softness, 72%)
+  );
+  opacity: calc(var(--lighting-intensity, 0.35) * var(--face-light-factor, 0.45));
+  mix-blend-mode: screen;
+}
+.face::after {
+  background: linear-gradient(
+    calc(var(--lighting-direction, 315deg) + 180deg),
+    #000000 0%,
+    transparent var(--lighting-softness, 72%)
+  );
+  opacity: calc(var(--lighting-intensity, 0.35) * (1 - var(--face-light-factor, 0.45)) * 0.55);
+  mix-blend-mode: multiply;
+}
+.shape:not(.lighting-enabled) .face::before,
+.shape:not(.lighting-enabled) .face::after {
+  display: none;
+}
+.shape.show-borders .face {
   border: var(--face-border-width, 1px) solid var(--face-border-color, #000);
+}
+.shape.show-borders .face::before,
+.shape.show-borders .face::after {
+  inset: var(--face-border-width, 1px);
 }
 .face.front {
   transform: translateZ(9rem);
@@ -34,17 +107,58 @@
 .face.bottom {
   transform: rotateX(-90deg) translateZ(9rem);
 }
-.cube-container {
-  position: relative;
+#render > .world {
+  position: absolute;
+}
+#render {
+  position: fixed;
+  inset: 0;
   perspective: 1200px;
   perspective-origin: 50% 50%;
 }
 .slider-container {
   background: rgba(0, 0, 0, 0.8);
   backdrop-filter: blur(10px);
-  border-radius: 0.5rem;
-  padding: 1rem;
+  border-radius: 0.375rem;
+  padding: 0.75rem 1rem;
   margin: 0.5rem;
+}
+#sliders {
+  max-height: calc(100vh - 2rem);
+  overflow-y: auto;
+  width: 16rem;
+}
+.slider-container summary {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+.slider-container[open] summary {
+  margin-bottom: 0.75rem;
+}
+.slider-container input[type="range"] {
+  width: 100%;
+}
+.border-settings,
+.setting-field {
+  display: grid;
+  gap: 0.5rem;
+}
+.setting-field-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+.setting-field-heading label {
+  cursor: pointer;
+}
+.setting-field input[type="color"] {
+  width: 100%;
+  color: #111827;
 }
 .slider {
   width: 200px;
