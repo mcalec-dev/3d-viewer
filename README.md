@@ -16,7 +16,10 @@ A lightweight browser-based 3D viewer built with plain HTML, CSS, and JavaScript
 - Left mouse drag: rotate the model
 - Right mouse drag: pan the view
 - Mouse wheel: zoom in and out
+- One-finger touch: rotate the model
+- Two-finger touch: pan the view and pinch to zoom
 - Controls are available in the left-side settings panel for dimensions, camera, lighting, and grid visibility
+- Use the settings toggle to hide or show the left-side settings panel
 
 > Lighting is a CSS shading approximation. It does not simulate physically based light transport or cast shadows.
 

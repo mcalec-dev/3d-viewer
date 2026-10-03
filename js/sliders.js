@@ -41,10 +41,23 @@
     elevation: document.getElementById("lightingElevationValue"),
     softness: document.getElementById("lightingSoftnessValue"),
   };
+  const settingsPanel = document.getElementById("sliders");
+  const settingsToggle = document.getElementById("settings-toggle");
+  const settingsToggleLabel = document.getElementById("settings-toggle-label");
   const state = window.viewerState;
   const settingsApi = window.viewerSettings;
   if (!state || !settingsApi) {
     throw new Error("viewerState and viewerSettings must be initialized before sliders.js");
+  }
+  if (settingsPanel && settingsToggle) {
+    settingsToggle.addEventListener("click", () => {
+      const expanded = settingsToggle.getAttribute("aria-expanded") === "true";
+      settingsPanel.hidden = expanded;
+      settingsToggle.setAttribute("aria-expanded", String(!expanded));
+      const label = expanded ? "Show settings" : "Hide settings";
+      settingsToggle.setAttribute("aria-label", label);
+      if (settingsToggleLabel) settingsToggleLabel.textContent = label;
+    });
   }
   function enableInlineValueEdit(sliderEl, valueEl, options = {}) {
     if (!valueEl || (!sliderEl && typeof options.onCommit !== "function")) return;
@@ -306,14 +319,14 @@
           }
         }
       },
-      syncZoomSlider: (z) => {
+      syncZoomSlider: (z, persist = true) => {
         let next = settingsApi.clampToSliderRange(z, sliders.zoom);
         next = settingsApi.snapToSliderStep(next, sliders.zoom);
         next = settingsApi.clampToSliderRange(next, sliders.zoom);
         sliders.zoom.value = settingsApi.formatForSlider(next, sliders.zoom);
         target.z = parseFloat(sliders.zoom.value);
         if (valueDisplays.zoom) valueDisplays.zoom.textContent = sliders.zoom.value;
-        persistSettings();
+        if (persist) persistSettings();
       },
     };
     if (!sliders.width) return;

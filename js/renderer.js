@@ -15,49 +15,124 @@ let current = {
   my: 0,
   mz: 0,
 };
-let activeDrag = null;
-let activePointerId = null;
-let lastPointerPosition = null;
+const activeTouchPointers = new Map();
+let touchGesture = null;
+let touchGestureChanged = false;
+let activeMouseDrag = null;
+let activeMousePointerId = null;
 const heldMovementKeys = new Set();
 let previousFrameTime = null;
 
-canvas.addEventListener("pointerdown", (e) => {
-  if (e.button === 0) activeDrag = "rotate";
-  else if (e.button === 2) activeDrag = "pan";
-  else return;
-  activePointerId = e.pointerId;
-  lastPointerPosition = { x: e.clientX, y: e.clientY };
-});
+function getTouchGestureState() {
+  const pointers = [...activeTouchPointers.values()].slice(0, 2);
+  if (pointers.length < 2) return null;
+  const [first, second] = pointers;
+  return {
+    x: (first.x + second.x) / 2,
+    y: (first.y + second.y) / 2,
+    distance: Math.max(Math.hypot(second.x - first.x, second.y - first.y), 1),
+  };
+}
 
-window.addEventListener("pointermove", (e) => {
-  if (e.pointerId !== activePointerId) return;
-  const slidersApi = window.sliders;
-  if (!slidersApi || !slidersApi.target) return;
-  const camera = slidersApi.target;
-  if (activeDrag === "rotate") {
-    const sensitivity = (slidersApi.SENSITIVITY || 100) / 100;
-    camera.ry += e.movementX * 0.25 * sensitivity;
-    camera.rx = clampPitch(camera.rx - e.movementY * 0.25 * sensitivity);
-  } else if (activeDrag === "pan" && lastPointerPosition) {
-    const deltaX = e.clientX - lastPointerPosition.x;
-    const deltaY = e.clientY - lastPointerPosition.y;
-    moveObjectByViewDelta(camera, deltaX, deltaY, 0);
-    lastPointerPosition = { x: e.clientX, y: e.clientY };
-  }
-});
-
-function endDrag(e) {
-  if (e.pointerId !== activePointerId) return;
-  activeDrag = null;
-  activePointerId = null;
-  lastPointerPosition = null;
-  if (window.sliders && typeof window.sliders.saveSettings === "function") {
-    window.sliders.saveSettings();
+function rebaseTouchGesture() {
+  if (activeTouchPointers.size === 1) {
+    const pointer = activeTouchPointers.values().next().value;
+    touchGesture = { type: "rotate", x: pointer.x, y: pointer.y };
+  } else if (activeTouchPointers.size >= 2) {
+    const gestureState = getTouchGestureState();
+    touchGesture = {
+      type: "transform",
+      ...gestureState,
+      startDistance: gestureState.distance,
+      startZoom: window.sliders?.target?.z || 0,
+    };
+  } else {
+    touchGesture = null;
   }
 }
 
-window.addEventListener("pointerup", endDrag);
-window.addEventListener("pointercancel", endDrag);
+canvas.addEventListener("pointerdown", (e) => {
+  if (e.pointerType === "touch") {
+    activeTouchPointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    canvas.setPointerCapture(e.pointerId);
+    rebaseTouchGesture();
+    return;
+  }
+  if (e.button === 0) activeMouseDrag = "rotate";
+  else if (e.button === 2) activeMouseDrag = "pan";
+  else return;
+  activeMousePointerId = e.pointerId;
+  canvas.setPointerCapture(e.pointerId);
+});
+
+window.addEventListener("pointermove", (e) => {
+  const slidersApi = window.sliders;
+  if (!slidersApi || !slidersApi.target) return;
+  const camera = slidersApi.target;
+
+  if (activeTouchPointers.has(e.pointerId)) {
+    const previous = activeTouchPointers.get(e.pointerId);
+    activeTouchPointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (activeTouchPointers.size === 1 && touchGesture?.type === "rotate") {
+      const deltaX = e.clientX - previous.x;
+      const deltaY = e.clientY - previous.y;
+      const sensitivity = (slidersApi.SENSITIVITY || 100) / 100;
+      camera.ry += deltaX * 0.25 * sensitivity;
+      camera.rx = clampPitch(camera.rx - deltaY * 0.25 * sensitivity);
+      touchGesture.x = e.clientX;
+      touchGesture.y = e.clientY;
+      touchGestureChanged ||= deltaX !== 0 || deltaY !== 0;
+    } else if (activeTouchPointers.size >= 2 && touchGesture?.type === "transform") {
+      const next = getTouchGestureState();
+      const deltaX = next.x - touchGesture.x;
+      const deltaY = next.y - touchGesture.y;
+      const zoomDelta = Math.log2(next.distance / touchGesture.startDistance) * 2;
+      moveObjectByViewDelta(camera, deltaX, deltaY, 0);
+      if (Number.isFinite(zoomDelta) && zoomDelta !== 0) {
+        slidersApi.syncZoomSlider(touchGesture.startZoom + zoomDelta, false);
+      }
+      touchGesture = { type: "transform", ...next };
+      touchGestureChanged ||= deltaX !== 0 || deltaY !== 0 || zoomDelta !== 0;
+    }
+    return;
+  }
+
+  if (e.pointerId !== activeMousePointerId) return;
+  if (activeMouseDrag === "rotate") {
+    const sensitivity = (slidersApi.SENSITIVITY || 100) / 100;
+    camera.ry += e.movementX * 0.25 * sensitivity;
+    camera.rx = clampPitch(camera.rx - e.movementY * 0.25 * sensitivity);
+  } else if (activeMouseDrag === "pan") {
+    moveObjectByViewDelta(camera, e.movementX, e.movementY, 0);
+  }
+});
+
+function endPointer(e) {
+  if (activeTouchPointers.has(e.pointerId)) {
+    activeTouchPointers.delete(e.pointerId);
+    if (activeTouchPointers.size > 0) {
+      rebaseTouchGesture();
+    } else {
+      touchGesture = null;
+      if (touchGestureChanged && window.sliders && typeof window.sliders.saveSettings === "function") {
+        window.sliders.saveSettings();
+      }
+      touchGestureChanged = false;
+    }
+    return;
+  }
+  if (e.pointerId === activeMousePointerId) {
+    activeMouseDrag = null;
+    activeMousePointerId = null;
+    if (window.sliders && typeof window.sliders.saveSettings === "function") {
+      window.sliders.saveSettings();
+    }
+  }
+}
+
+window.addEventListener("pointerup", endPointer);
+window.addEventListener("pointercancel", endPointer);
+window.addEventListener("lostpointercapture", endPointer);
 canvas.addEventListener("contextmenu", (e) => e.preventDefault());
 
 canvas.addEventListener("wheel", (e) => {
